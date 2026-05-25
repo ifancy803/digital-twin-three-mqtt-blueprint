@@ -1,33 +1,42 @@
 import { useMemo, useState } from 'react'
+import { useBlueprintStore } from '../store/blueprintStore'
 import { useTwinStore } from '../store/twinStore'
 
 const samplePayloads = [
   {
     id: 'pump-001',
     temperature: 62,
-    status: 'running'
+    status: 'running',
+    color: '#f6a04d'
   },
   {
     id: 'pump-001',
     temperature: 91,
-    status: 'alarm'
+    status: 'alarm',
+    color: '#db4f54'
   },
   {
     id: 'fan-002',
     temperature: 38,
-    status: 'idle'
+    status: 'idle',
+    color: '#5b8def'
   }
 ]
 
-export function ControlPanel({ onSimulate, onRunGraph }) {
+export function ControlPanel() {
   const [payloadIndex, setPayloadIndex] = useState(0)
   const mqttConnected = useTwinStore((state) => state.mqtt.connected)
   const mqttUrl = useTwinStore((state) => state.mqtt.url)
-  const mqttTopic = useTwinStore((state) => state.mqtt.topic)
+  const simulationTopic = useTwinStore((state) => state.mqtt.simulationTopic)
+  const mqttError = useTwinStore((state) => state.mqtt.error)
   const lastMessage = useTwinStore((state) => state.lastMessage)
   const setMqttConfig = useTwinStore((state) => state.setMqttConfig)
   const connectMqtt = useTwinStore((state) => state.connectMqtt)
   const disconnectMqtt = useTwinStore((state) => state.disconnectMqtt)
+  const simulateMqttMessage = useBlueprintStore((state) => state.simulateMqttMessage)
+  const runBlueprint = useBlueprintStore((state) => state.runBlueprint)
+  const stopBlueprint = useBlueprintStore((state) => state.stopBlueprint)
+  const isRunning = useBlueprintStore((state) => state.isRunning)
 
   const currentPayload = useMemo(() => samplePayloads[payloadIndex], [payloadIndex])
 
@@ -35,35 +44,48 @@ export function ControlPanel({ onSimulate, onRunGraph }) {
     <section className="panel control-panel">
       <div className="panel-header">
         <h2>运行控制</h2>
-        <p>先跑通模拟数据，再接入真实 MQTT Broker</p>
+        <p>MQTT 连接只负责链路，真正的订阅列表由蓝图中的 Subscribe 节点动态决定。</p>
       </div>
 
       <div className="field-grid">
         <label>
-          MQTT WS 地址
+          MQTT WebSocket 地址
           <input value={mqttUrl} onChange={(event) => setMqttConfig({ url: event.target.value })} />
         </label>
         <label>
-          Topic
-          <input value={mqttTopic} onChange={(event) => setMqttConfig({ topic: event.target.value })} />
+          模拟注入 Topic
+          <input
+            value={simulationTopic}
+            onChange={(event) => setMqttConfig({ simulationTopic: event.target.value })}
+          />
         </label>
       </div>
 
       <div className="button-row">
         <button onClick={connectMqtt} className="primary">
-          {mqttConnected ? '重新连接' : '连接 MQTT'}
+          {mqttConnected ? '重新连接 MQTT' : '连接 MQTT'}
         </button>
         <button onClick={disconnectMqtt} className="ghost">
-          断开
+          断开 MQTT
         </button>
-        <button onClick={onRunGraph} className="ghost">
-          运行蓝图
+        <button onClick={() => runBlueprint()} className="ghost">
+          {isRunning ? '重新运行蓝图' : '运行蓝图'}
+        </button>
+        <button onClick={() => stopBlueprint()} className="ghost">
+          停止蓝图
         </button>
       </div>
 
+      <div className="mqtt-status">
+        <span className={`pill ${mqttConnected ? 'online' : 'offline'}`}>{mqttConnected ? 'Connected' : 'Offline'}</span>
+        <span className={`pill ${isRunning ? 'running' : 'idle'}`}>{isRunning ? 'Blueprint Running' : 'Blueprint Idle'}</span>
+      </div>
+
+      {mqttError ? <p className="inline-error">{mqttError}</p> : null}
+
       <div className="simulator">
         <div>
-          <p className="section-title">模拟消息</p>
+          <p className="section-title">模拟 MQTT 消息</p>
           <select value={payloadIndex} onChange={(event) => setPayloadIndex(Number(event.target.value))}>
             {samplePayloads.map((payload, index) => (
               <option key={`${payload.id}-${index}`} value={index}>
@@ -75,10 +97,10 @@ export function ControlPanel({ onSimulate, onRunGraph }) {
         <button
           className="primary"
           onClick={() => {
-            onSimulate(currentPayload)
+            simulateMqttMessage(simulationTopic, currentPayload)
           }}
         >
-          注入场景
+          注入到蓝图
         </button>
       </div>
 

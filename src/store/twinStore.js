@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { createMqttService } from '../lib/mqttClient'
+import { mqttService } from '../lib/mqttClient'
 
 const defaultDevices = [
   {
@@ -8,7 +8,10 @@ const defaultDevices = [
     temperature: 48,
     status: 'idle',
     color: '#5b8def',
-    position: [-3, 0, 0]
+    position: [-3, 0, 0],
+    rotation: [0, 0, 0],
+    scale: [1, 1, 1],
+    modelUrl: null // null 表示使用默认方块
   },
   {
     id: 'fan-002',
@@ -16,7 +19,10 @@ const defaultDevices = [
     temperature: 36,
     status: 'idle',
     color: '#5b8def',
-    position: [0, 0, 0]
+    position: [0, 0, 0],
+    rotation: [0, 0, 0],
+    scale: [1, 1, 1],
+    modelUrl: null
   },
   {
     id: 'boiler-003',
@@ -24,28 +30,43 @@ const defaultDevices = [
     temperature: 72,
     status: 'running',
     color: '#f6a04d',
-    position: [3, 0, 0]
+    position: [3, 0, 0],
+    rotation: [0, 0, 0],
+    scale: [1, 1, 1],
+    modelUrl: null
   }
 ]
 
-function colorByState(status, temperature) {
-  if (status === 'alarm' || temperature >= 85) return '#db4f54'
-  if (status === 'running' || temperature >= 55) return '#f6a04d'
+function colorByState(status, temperature, currentColor) {
+  if (typeof currentColor === 'string' && currentColor.trim()) {
+    return currentColor
+  }
+
+  if (status === 'alarm' || Number(temperature) >= 85) return '#db4f54'
+  if (status === 'running' || Number(temperature) >= 55) return '#f6a04d'
   return '#5b8def'
 }
 
-let mqttService
+function normalizeDevice(device) {
+  return {
+    ...device,
+    color: colorByState(device.status, device.temperature, device.color)
+  }
+}
 
 export const useTwinStore = create((set, get) => ({
-  devices: defaultDevices,
+  devices: defaultDevices.map(normalizeDevice),
   selectedDeviceId: 'pump-001',
+  currentView: 'scene', // 'scene' | 'blueprint'
   lastMessage: null,
   mqtt: {
     url: 'ws://broker.emqx.io:8083/mqtt',
-    topic: 'demo/digital-twin/device',
     connected: false,
-    error: null
+    error: null,
+    simulationTopic: 'devices/pump-001/status'
   },
+
+  setView: (view) => set({ currentView: view }),
 
   selectDevice: (deviceId) => set({ selectedDeviceId: deviceId }),
 
@@ -57,45 +78,92 @@ export const useTwinStore = create((set, get) => ({
       }
     })),
 
-  applyDeviceUpdate: ({ id, temperature, status }) =>
+  setLastMessage: (message) => set({ lastMessage: message }),
+
+  applyDevicePatch: ({ id, patch }) =>
     set((state) => ({
-      devices: state.devices.map((device) =>
-        device.id === id
-          ? {
-              ...device,
-              temperature: temperature ?? device.temperature,
-              status: status ?? device.status,
-              color: colorByState(status ?? device.status, temperature ?? device.temperature)
-            }
-          : device
-      )
+      devices: state.devices.map((device) => {
+        if (device.id !== id) {
+          return device
+        }
+
+        const nextDevice = {
+          ...device,
+          ...patch
+        }
+
+        return {
+          ...nextDevice,
+          color: colorByState(nextDevice.status, nextDevice.temperature, nextDevice.color)
+        }
+      })
     })),
 
+  updateDeviceProperty: ({ id, property, value }) => {
+    if (!id || property == null) {
+      return
+    }
+
+    const patch =
+      property === 'position' && Array.isArray(value)
+        ? { position: value }
+        : {
+            [property]: value
+          }
+
+    get().applyDevicePatch({ id, patch })
+  },
+
   feed: (payload) => {
-    set({ lastMessage: payload })
-    get().applyDeviceUpdate(payload)
+    if (!payload?.id) {
+      return
+    }
+
+    set({
+      lastMessage: {
+        topic: 'manual/feed',
+        payload,
+        timestamp: Date.now()
+      }
+    })
+    get().applyDevicePatch({ id: payload.id, patch: payload })
   },
 
   connectMqtt: () => {
-    mqttService?.disconnect()
-    const { url, topic } = get().mqtt
-    mqttService = createMqttService({
-      url,
-      topic,
-      onMessage: (payload) => get().feed(payload),
-      onStatus: (status) =>
+    const { url } = get().mqtt
+
+    if (!url || !url.trim()) {
+      set((state) => ({
+        mqtt: {
+          ...state.mqtt,
+          error: 'MQTT WebSocket URL 不能为空'
+        }
+      }))
+      return
+    }
+
+    try {
+      mqttService.connect({ url }, (status) => {
         set((state) => ({
           mqtt: {
             ...state.mqtt,
             ...status
           }
         }))
-    })
-    mqttService.connect()
+      })
+    } catch (err) {
+      set((state) => ({
+        mqtt: {
+          ...state.mqtt,
+          connected: false,
+          error: `连接失败: ${err.message}`
+        }
+      }))
+    }
   },
 
   disconnectMqtt: () => {
-    mqttService?.disconnect()
+    mqttService.disconnect()
     set((state) => ({
       mqtt: {
         ...state.mqtt,

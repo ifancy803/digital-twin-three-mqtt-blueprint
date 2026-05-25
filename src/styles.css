@@ -19,7 +19,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -28,75 +29,199 @@ button {
   border: 0;
 }
 
+input,
+select,
+textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid #c2d0dc;
+  padding: 11px 13px;
+  background: #f9fbfc;
+  color: #17324c;
+}
+
+textarea {
+  resize: vertical;
+}
+
 #root {
   min-height: 100vh;
 }
 
 .app-shell {
-  min-height: 100vh;
-  padding: 24px;
+  height: 100vh;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.hero {
+.top-nav {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
-  gap: 24px;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  padding: 28px 30px;
+  align-items: center;
+  padding: 6px 16px;
+  margin-bottom: 12px;
   border: 1px solid rgba(17, 32, 49, 0.08);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 18px 60px rgba(46, 81, 109, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(46, 81, 109, 0.06);
 }
 
-.eyebrow {
-  margin: 0 0 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #4d7395;
-  font-size: 12px;
-  font-weight: 700;
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.hero h1,
+.nav-brand h1 {
+  font-size: 18px;
+  margin: 0;
+  background: linear-gradient(135deg, #275efe 0%, #2e88b9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  background: #275efe;
+  border-radius: 50%;
+}
+
+.nav-links {
+  display: flex;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.nav-item {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #51657b;
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.nav-item.active {
+  background: #fff;
+  color: #275efe;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #51657b;
+}
+
 .panel h2 {
   margin: 0;
 }
 
-.hero-copy,
 .panel-header p,
-.flow-node p,
-.device-label span {
+.device-label span,
+.device-label small,
+.empty-hint {
   color: #51657b;
 }
 
-.hero-status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: #4caf50;
-  box-shadow: 0 0 0 6px rgba(76, 175, 80, 0.14);
-}
-
 .workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.view-container {
+  flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(360px, 1fr);
   gap: 20px;
 }
 
-.sidebar {
-  display: grid;
+.scene-view-layout {
+  grid-template-columns: minmax(0, 1.4fr) minmax(360px, 0.6fr);
+}
+
+.blueprint-view-layout {
+  grid-template-columns: minmax(0, 1.4fr) minmax(360px, 0.6fr);
+}
+
+.side-panels {
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+}
+
+.device-config-panel .transform-group {
+  padding: 0 22px;
+  margin-top: 14px;
+}
+
+.device-config-panel .transform-group .label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #51657b;
+}
+
+.device-config-panel .input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.device-config-panel .full-width {
+  grid-column: 1 / -1;
+}
+
+.device-config-panel small {
+  font-size: 11px;
+  display: block;
+  margin-top: 4px;
+}
+
+.inspector-rule-item {
+  border: 1px solid rgba(17, 32, 49, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.inspector-rule-item header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.inspector-rule-item header strong {
+  font-size: 12px;
+  color: #51657b;
+}
+
+button.mini-danger {
+  padding: 4px 8px;
+  font-size: 11px;
+  background: #ffeded;
+  color: #db4f54;
+  border-radius: 4px;
+}
+
+.inspector-hint {
+  font-size: 12px;
+  color: #51657b;
+  padding: 0 22px;
+  margin: 10px 0 0;
 }
 
 .panel {
@@ -112,22 +237,85 @@ button {
 }
 
 .scene-panel {
-  min-height: 720px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .scene-canvas {
-  height: 640px;
+  flex: 1;
+  position: relative;
+  min-height: 500px;
 }
 
-.control-panel,
+.scene-overlay {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(17, 32, 49, 0.08);
+  box-shadow: 0 12px 30px rgba(46, 81, 109, 0.12);
+  font-size: 13px;
+  font-weight: 700;
+}
 .blueprint-panel {
-  padding-bottom: 18px;
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+  height: 100%;
+  padding: 0;
+}
+
+.blueprint-toolbar {
+  grid-column: 1 / -1;
+  padding: 10px 20px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.blueprint-palette {
+  grid-column: 1;
+  grid-row: 2 / 4;
+  overflow-y: auto;
+}
+
+.blueprint-canvas {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 0;
+  height: 100%;
+}
+
+.blueprint-inspector {
+  grid-column: 3;
+  grid-row: 2;
+  overflow-y: auto;
+}
+
+.blueprint-logs {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 0;
+  max-height: 240px;
+}
+
+.log-list {
+  max-height: 180px;
 }
 
 .field-grid,
 .button-row,
 .simulator,
-.message-box {
+.message-box,
+.mqtt-status {
   padding: 18px 22px 0;
 }
 
@@ -142,15 +330,6 @@ button {
   gap: 8px;
 }
 
-.field-grid input,
-.simulator select {
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid #c2d0dc;
-  padding: 11px 13px;
-  background: #f9fbfc;
-}
-
 .button-row {
   display: flex;
   flex-wrap: wrap;
@@ -158,7 +337,8 @@ button {
 }
 
 .button-row button,
-.simulator button {
+.simulator button,
+.blueprint-toolbar button {
   border-radius: 999px;
   padding: 10px 16px;
   font-weight: 700;
@@ -174,6 +354,47 @@ button.ghost {
   color: #17324c;
 }
 
+button.danger {
+  background: #fdebec;
+  color: #a63b43;
+}
+
+.mqtt-status {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pill.online,
+.pill.running,
+.toolbar-validation.valid {
+  background: rgba(28, 143, 93, 0.12);
+  color: #0a7a4f;
+}
+
+.pill.offline,
+.pill.idle {
+  background: rgba(71, 91, 111, 0.12);
+  color: #526273;
+}
+
+.inline-error,
+.graph-errors,
+.log-error,
+.blueprint-node-error,
+.toolbar-validation.invalid {
+  color: #a63b43;
+}
+
 .simulator {
   grid-template-columns: 1fr auto;
   align-items: end;
@@ -186,75 +407,322 @@ button.ghost {
   color: #4d7395;
 }
 
-.message-box pre {
+.message-box pre,
+.log-item pre {
   overflow: auto;
   margin: 10px 0 0;
   padding: 16px;
   border-radius: 18px;
   background: #0f1c2a;
   color: #d7e4ef;
+}
+
+.message-box pre {
   min-height: 120px;
 }
 
-.flow-wrapper {
-  height: 460px;
-  margin-top: 18px;
+.blueprint-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 18px 22px 0;
+  align-items: center;
 }
 
-.flow-node {
-  min-width: 180px;
+.toolbar-validation {
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.blueprint-workbench {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 300px;
+  gap: 16px;
+  padding: 18px 22px 0;
+  align-items: stretch;
+}
+
+.palette-hint {
+  margin: 0 0 12px;
+  color: #51657b;
+  font-size: 12px;
+}
+
+.blueprint-palette,
+.blueprint-inspector,
+.blueprint-logs {
+  border-radius: 22px;
+  border: 1px solid rgba(17, 32, 49, 0.08);
+  background: rgba(245, 249, 252, 0.9);
+}
+
+.blueprint-palette,
+.blueprint-inspector {
+  padding: 16px;
+}
+
+.blueprint-section-title {
+  margin-bottom: 12px;
+  color: #4d7395;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.palette-list {
+  display: grid;
+  gap: 10px;
+}
+
+.palette-item {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(39, 94, 254, 0.12);
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(46, 81, 109, 0.08);
+}
+
+.palette-item-group {
+  color: #4d7395;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.palette-item span:last-child {
+  color: #51657b;
+  font-size: 12px;
+}
+
+.blueprint-canvas {
+  min-height: 780px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(17, 32, 49, 0.08);
+  background: linear-gradient(180deg, #fbfdff 0%, #eef4f9 100%);
+}
+
+.blueprint-inspector {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.inspector-meta {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(17, 32, 49, 0.06);
+}
+
+.inspector-meta span,
+.inspector-field small {
+  color: #51657b;
+  font-size: 12px;
+}
+
+.inspector-field {
+  display: grid;
+  gap: 8px;
+}
+
+.inspector-field > span {
+  font-weight: 700;
+}
+
+.blueprint-logs {
+  margin: 18px 22px 0;
+  padding: 16px;
+}
+
+.graph-errors {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.log-list {
+  display: grid;
+  gap: 12px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.log-item {
+  padding: 14px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid rgba(17, 32, 49, 0.06);
+}
+
+.log-item header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.log-item header span {
+  color: #51657b;
+  font-size: 12px;
+}
+
+.log-item pre {
+  max-height: 160px;
+}
+
+.blueprint-node {
+  min-width: 220px;
   border-radius: 18px;
   padding: 14px 16px;
-  border: 1px solid rgba(39, 94, 254, 0.18);
+  border: 1px solid rgba(39, 94, 254, 0.14);
   background: linear-gradient(180deg, #ffffff 0%, #edf4f9 100%);
   box-shadow: 0 10px 28px rgba(59, 100, 136, 0.14);
 }
 
-.flow-node.output {
-  border-color: rgba(246, 160, 77, 0.22);
+.blueprint-node.status-running {
+  box-shadow: 0 0 0 2px rgba(39, 94, 254, 0.18), 0 10px 28px rgba(59, 100, 136, 0.14);
 }
 
-.flow-node strong {
-  display: block;
-  margin-top: 4px;
+.blueprint-node.status-success {
+  box-shadow: 0 0 0 2px rgba(28, 143, 93, 0.18), 0 10px 28px rgba(59, 100, 136, 0.14);
 }
 
-.flow-node p {
+.blueprint-node.status-error,
+.blueprint-node.has-error {
+  box-shadow: 0 0 0 2px rgba(166, 59, 67, 0.18), 0 10px 28px rgba(59, 100, 136, 0.14);
+}
+
+.blueprint-node-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.blueprint-node-badge {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--node-accent) 16%, white);
+  color: var(--node-accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.blueprint-node-status {
+  font-size: 11px;
+  color: #51657b;
+  text-transform: uppercase;
+}
+
+.blueprint-node-subtitle,
+.blueprint-node-fields span {
+  color: #51657b;
+}
+
+.blueprint-node-subtitle {
   margin: 8px 0 0;
   font-size: 12px;
 }
 
-.flow-type {
-  display: inline-flex;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(39, 94, 254, 0.12);
-  color: #275efe;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+.blueprint-node-fields {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.blueprint-node-fields b {
+  color: #17324c;
+}
+
+.blueprint-node-error {
+  margin: 10px 0 0;
+  font-size: 12px;
 }
 
 .device-label {
-  display: grid;
-  gap: 2px;
-  min-width: 92px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(17, 32, 49, 0.08);
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 30px rgba(17, 32, 49, 0.12);
-  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  transition: all 0.2s;
 }
 
-@media (max-width: 1080px) {
-  .workspace {
+.device-label.selected {
+  background: #275efe;
+  border-color: #275efe;
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(39, 94, 254, 0.3);
+}
+
+.device-label.selected strong,
+.device-label.selected span,
+.device-label.selected small {
+  color: #fff;
+}
+
+.device-label strong {
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.device-label span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.device-label small {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+@media (max-width: 1480px) {
+  .blueprint-workbench {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .blueprint-inspector {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1180px) {
+  .top-row {
     grid-template-columns: 1fr;
   }
 
   .scene-panel {
     min-height: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .blueprint-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .blueprint-canvas {
+    min-height: 520px;
   }
 }
 
@@ -274,5 +742,9 @@ button.ghost {
 
   .simulator {
     grid-template-columns: 1fr;
+  }
+
+  .toolbar-validation {
+    margin-left: 0;
   }
 }
